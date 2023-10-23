@@ -37,6 +37,14 @@ namespace SimpleWindow
         /// </value>
         static Color[] colorMove = { Color.Red,Color.Yellow,Color.Blue};
         /// <value>
+        /// Câmpul <c>constDeplasaret</c> este static și reprezintă viteza cu care se deplasează obiectul
+        /// </value>
+        static float constDeplasare = 0.01f;
+        /// <value>
+        /// Câmpul <c>X</c> reprezintă translația pe axa x a obiectului
+        /// </value>
+        float X;
+        /// <value>
         /// Câmpul <c>isMoving</c> reprezintă starea de mișcare a mouse-ului
         /// </value>
         bool isMoving;
@@ -52,6 +60,7 @@ namespace SimpleWindow
             VSync = VSyncMode.On; // se activează VSync
             KeyDown += Keyboard_KeyDown;
             displayHelp();
+            X = 0f;
             isMoving = false;
             isHidden = false;
         }
@@ -59,7 +68,7 @@ namespace SimpleWindow
      
         /// <summary>
         /// Tratează evenimentul generat de apăsarea unui taste. 
-        /// Sunt tratate tastele Escape, F11, H, O și P.
+        /// Sunt tratate tastele Escape, F11, H, O, P, leftArrow, rightArrow și Space.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -94,6 +103,19 @@ namespace SimpleWindow
             {
                 this.isHidden= false; // se afisează obiectul
             }
+            if (e.Key == Key.Left && !previousKeyboard[Key.Left]) // se verifică dacă este apăsată tasta leftArrow
+            {
+                X = -constDeplasare;
+            }
+            if (e.Key == Key.Right && !previousKeyboard[Key.Right]) // se verifică dacă este apăsată tasta rightArrow
+            {
+                X = constDeplasare;
+            }
+            if (e.Key == Key.Space) // se verifică dacă este apăsată tasta Space
+            {
+                X = 0f;
+            }
+
 
         }
 
@@ -148,7 +170,7 @@ namespace SimpleWindow
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
-
+            GL.Translate(X, 0, 0); // se transalatează obiectul
           
             if (!isHidden) // verificăm dacă obiectul nu este ascuns
             {
@@ -196,6 +218,10 @@ namespace SimpleWindow
             Console.WriteLine(" H - meniu de ajutor");
             Console.WriteLine(" O - ascunde obiectul");
             Console.WriteLine(" P - arata obiectul");
+            Console.WriteLine(" LeftArrow - deplaseaza obiectul spre stanga");
+            Console.WriteLine(" RightArrow - deplaseaza obiectul spre dreapta");
+            Console.WriteLine(" Space - opreste obiectul");
+            Console.WriteLine(" Miscare mouse - obiectul isi schimba culoarea");
             Console.WriteLine(" F11 - redimensionare fereastra");
         }
 
