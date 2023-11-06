@@ -1,0 +1,24 @@
+﻿	Meniu	
+Escape - iese din aplicatie, 
+F11 - redimensioneaza fereastra,
+H -  afiseaza meniul de ajutor,
+O - ascunde/arata obiectul
+leftArrow - misca obiectul in staga si trebuie tinut apasat
+rightArro - misca obiectul in dreata si trebuie tinut apasat
+UpArrow - misca obiectul in sus si trebuie tinut apasat
+DownArrow - misca obiectul in joc si trebuie tinut apasat
+Control + UpArrow - mica obiectul in fata si trebuie tinut apasat
+Control + DownArrow - mica obiectul in spate si trebuie tinut apasat
+Space - centreaza obiectul
+R - creste componenta Red din culorile obiectului 
+Control + R - scade componenta Red din culorile obiectului 
+G - creste componenta Green din culorile obiectului 
+Control + G - scade componenta Green din culorile obiectului 
+B - creste componenta Blue din culorile obiectului 
+Control + B - scade componenta Blue din culorile obiectului
+X - seteaza daca camera este manipulata prin miscarea mouse-ului sau nu 
+I - informatii despre obiect
+Obiectul isi va schimba culoare in timp ce mouse-ul se misca
+Camara este manipulata prin miscarea mouse-ului daca nu a fost apasat x
+Camera este rotita la stanga prin apasarea leftClick a mouse-ului
+Camera este rotita la dreapta prin apasarea rightClick a mouse-ului
