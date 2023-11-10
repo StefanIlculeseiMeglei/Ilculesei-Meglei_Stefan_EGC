@@ -17,7 +17,7 @@ namespace SimpleWindow
 {
     /// <summary>
     ///  Ilculesei-Meglei Ștefan grupa 3131a
-    ///  Acest proiect rezolvă tema de la laboratorul 2 si din laboratorul 3.
+    ///  Acest proiect rezolvă Temele 2,3 și 4.
     /// </summary>
     class SimpleWindow : GameWindow
     {
@@ -25,11 +25,11 @@ namespace SimpleWindow
         /// <value>
         /// Câmpul <c>caleFisierdCoordonate</c> reprezintă calea catre fisierul de unde vom luat coordonatele obiectului, face parte din tema 3
         /// </value>
-        string caleFisierCoordonate = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "coordonate.txt");
+        string caleFisierCoordonate = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/coordonate.txt");
         /// <value>
         /// Câmpul <c>caleFisierMeniu</c> reprezintă calea catre fisierul de unde vom luat meniul de ajutor
         /// </value>
-        string caleFisierMeniu = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "meniu.txt");
+        string caleFisierMeniu = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/meniu.txt");
         /// <value>
         /// Câmpul <c> coordObj</c> reprezintă un array cu coordonatele obiectului, face parte din tema 3
         /// </value>
@@ -37,7 +37,7 @@ namespace SimpleWindow
         /// <value>
         /// Câmpul <c> XYZ_SIZE</c> determina lungimea axelor de coordonate
         /// </value>
-        public const int XYZ_SIZE = 75;
+        public const int XYZ_SIZE = 300;
         /// <value>
         /// Câmpul <c> incrementCuloare</c> determina cu cat vom incrementa/decrementa culoarea obiectului, face parte din tema 3
         /// </value>
@@ -45,7 +45,7 @@ namespace SimpleWindow
         /// <value>
         /// Câmpul <c> mouseMovement</c> determina daca camere este manipulata prin miscarea mouse-ului, face parte din tema 3
         /// </value>
-        private bool mouseMovement = true;
+        private bool mouseMovement = false;
         /// <value>
         /// Câmpul <c> camera</c> este folosit pentru a apela metodele din clasa Camare3D, face parte din tema3
         /// </value>
@@ -58,38 +58,17 @@ namespace SimpleWindow
         /// Câmpul <c>previousMouse</c> reprezintă ultima stare a mouse-ului
         /// </value>
         private MouseState previousMouse;
-        /// <value>
-        /// Câmpul <c>colorRest</c> este static și reprezintă un tablou pentru colorile obiectului în stare de repaus
-        /// </value>
-        private Color[] colorRest = new Color[3];
-        /// <value>
-        /// Câmpul <c>colorRest</c> este static și reprezintă un tablou pentru colorile obiectului în stare de mișcare
-        /// </value>
-        private Color[] colorMove = { Color.Red,Color.Yellow,Color.Blue};
+      
         /// <value>
         /// Câmpul <c>constDeplasaret</c> este static și reprezintă viteza cu care se deplasează obiectul
         /// </value>
-        static float constDeplasare = 0.02f;
-        /// <value>
-        /// Câmpul <c>X</c> reprezintă translația pe axa x a obiectului
-        /// </value>
-        private float X=0f;
-        /// <value>
-        /// Câmpul <c>Y</c> reprezintă translația pe axa y a obiectului
-        /// </value>
-        private float Y= 0f;
-        /// <value>
-        /// Câmpul <c>Z</c> reprezintă translația pe axa z a obiectului
-        /// </value>
-        private float Z = 0f;
+        static float constDeplasare = 0.2f;
+       
         /// <value>
         /// Câmpul <c>isMoving</c> reprezintă starea de mișcare a mouse-ului
         /// </value>
         private bool isMoving=false;
-        /// <value>
-        /// Câmpul <c>isHidden</c> determină dacă obiectul este randat sau nu
-        /// </value>
-        private bool isHidden=false;
+   
         /// <value>
         /// Câmpul <c>meniuExists</c> determină daca meniul a fost citit din fisier sau nu
         /// </value>
@@ -99,57 +78,43 @@ namespace SimpleWindow
         /// </value>
         private StringBuilder meniu = new StringBuilder();
         /// <summary>
-        /// Constructor 
+        /// Câmpul <c>obiect</c> reprezintă obiectul desenat
+        /// </summary>
+        private Obiect3D obiect;
+        /// <summary>
+        /// Câmpul <c>axe</c> reprezintă axele de coordonate a scenei 3D
+        /// </summary>
+        private AxeXYZ axe;
+        /// <summary>
+        /// Câmpul <c>modificaculori</c> determină ce obiecte îsi schimbă culoarea, face parte din Tema 4
+        /// </summary>
+        private ModificareCulori modificareCulori;
+        /// <summary>
+        /// Enumeratia ModificareCulori determină ce obiecte îsi vor schimba culoarea, face parte din Tema 4
+        /// Fata - o singura fața a cubului îsi schimba culoarea
+        /// Vertex1 - primul vertex din toate triunghiurile îsi schimbă culoarea
+        /// Vertex2 - al doilea vertex din toate triunghiurile îsi schimbă culoarea
+        /// Vertex3 - al treilea vertex din toate triunghiurile îsi schimbă culoarea
+        /// </summary>
+        internal enum ModificareCulori // TEMA 4
+        {
+            FATA,
+            VERTEX1, VERTEX2, VERTEX3
+        }
+        /// <summary>
+        /// Constructor
         /// </summary>
         public SimpleWindow() : base(800, 600,new GraphicsMode(32, 24, 0, 8))
         {
             VSync = VSyncMode.On; // se activează VSync
             KeyDown += Keyboard_KeyDown;
             camera = new Camera3D();
-            initCoord();
-            initCulori(); 
+            obiect = new Obiect3D();
+            axe= new AxeXYZ();
+            modificareCulori = ModificareCulori.FATA;
             displayHelp();
-
         }
-        /// <summary>
-        /// Metoda de initializare a culorilor pentru un obiect, seteaza o culoare random si face parte din tema 3
-        /// </summary>
-        private void initCulori() // da valori random pentru culorile obiectului in repus
-        {
-            Random rand=   new Random();
-            for(int i = 0; i < colorRest.Length; i++) {
-                colorRest[i] = Color.FromArgb(255,rand.Next(256),rand.Next(256),rand.Next(256));
-            }
-
-        }
-        /// <summary>
-        /// Metoda de initializare a coordonatelor pentru un obiect, coordonatele sunt citite dintr-un fisier si face parte din tema 3
-        /// Sunt arunca exceptii in cazul in care fisierul nu exista, numarul de linii este gresit sau nu sunt 3 numere pe o linie
-        /// </summary>
-        private void initCoord()
-        {
-            for (int i = 0; i < 3; i++) { coordObj[i] = new float[3]; }
-            try // citire din fisier
-            {
-                string[] linii= File.ReadAllLines(caleFisierCoordonate);
-                if(linii.Length != 3) {
-                    throw new Exception("numar incorect de linii");
-                }
-                for(int i = 0;i < linii.Length;i++)
-                {
-                    string[] sir = linii[i].Split(','); // separare dupa ,
-                    if(sir.Length != 3) {
-                        throw new Exception("numar incorect de coordonate pe linie");
-                    }
-                    coordObj[i][0] = float.Parse(sir[0]);
-                    coordObj[i][1]= float.Parse(sir[1]);
-                    coordObj[i][2]= float.Parse(sir[2]);
-
-                }
-                
-            }
-            catch (Exception e) { Console.WriteLine("Exceptie:"+e.Message); }
-        }
+    
 
         /// <summary>
         /// Tratează evenimentul generat de apăsarea unui taste. 
@@ -172,7 +137,12 @@ namespace SimpleWindow
         /// B - creste componenta Blue din culorile obiectului (face parte din tema 3),
         /// Control + B - scade componenta Blue din culorile obiectului (face parte din tema 3).
         /// X - seteaza daca camera este manipulata prin miscarea mouse-ului sau nu (face parte din tema 3),
-        /// I - informatii despre obiect momentan doar culorile in format RGB (face parte din tema 3)
+        /// I - informatii despre obiect momentan doar culorile in format RGB si numarul de vertexuri (face parte din tema 3)
+        /// 1 - schimba culorile primului vertex din toate triunghiurile
+        /// 2 - schimba culorile celui de al doilea vertex din toate triunghiurile
+        /// 3 - schimba culorile celui de al treilea vertex din toate triunghiurile
+        /// 0 - schimba culorile unei fete a obiectului desenat]
+        /// F1 - genereaza noi culorile pentru obiect
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -200,7 +170,7 @@ namespace SimpleWindow
 
             if (e.Key == Key.O && !previousKeyboard[Key.O]) // se verifică dacă tasta O a fost apăsata o singură dată
             {
-                this.isHidden =!isHidden; // se ascunde/arata obiectul
+                obiect.ToggleVisibility(); // se ascunde/arata obiectul
             }
             if (e.Key == Key.X && !previousKeyboard[Key.X]) // se verifică dacă tasta x a fost apăsata o singură dată
             {
@@ -208,110 +178,115 @@ namespace SimpleWindow
             }
             if (e.Key == Key.Left && previousKeyboard[Key.Left]) // se verifică dacă este apăsată tasta leftArrow
             {
-                X -= constDeplasare;
+                obiect.Translate(-constDeplasare,0,0);
             }
             if (e.Key == Key.Right && previousKeyboard[Key.Right]) // se verifică dacă este apăsată tasta rightArrow
             {
-               
-                X += constDeplasare;
+
+                obiect.Translate(constDeplasare, 0, 0);
             }
-            if (e.Key == Key.Up && previousKeyboard[Key.Up]) // se verifică dacă este apăsată tasta UpArrow
+            if (e.Key == Key.Up && previousKeyboard[Key.Up] && !e.Control) // se verifică dacă este apăsată tasta UpArrow
             {
-                Y += constDeplasare;
+                obiect.Translate(0, constDeplasare, 0);
             }
-            if (e.Key == Key.Down && previousKeyboard[Key.Down]) // se verifică dacă este apăsată tasta DownArrow
+            if (e.Key == Key.Down && previousKeyboard[Key.Down] && !e.Control) // se verifică dacă este apăsată tasta DownArrow
             {
-                Y -= constDeplasare;
+                obiect.Translate(0, -constDeplasare, 0);
             }
             if (e.Key == Key.Up && previousKeyboard[Key.Up] && e.Control) // se verifică dacă este apăsată tasta UpArrow si Control
             {
-                Z += constDeplasare;
+                obiect.Translate(0, 0, constDeplasare);
             }
             if (e.Key == Key.Down && previousKeyboard[Key.Down] && e.Control) // se verifică dacă este apăsată tasta DownArrow si Control
             {
-                Z -= constDeplasare;
+                obiect.Translate(0, 0, -constDeplasare);
             }
             if (e.Key == Key.Space) // se verifică dacă este apăsată tasta Space
             {
-                X = 0f;
-                Y = 0f;
-                Z = 0f;
+                obiect.ResetPosition();
             }
 
             if (e.Key == Key.R && !previousKeyboard[Key.R] && !e.Control) // se verifică dacă este apăsată tasta R
             {
 
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    int culoare = Math.Min(255, colorRest[i].R + incrementCuloare);
-                    colorRest[i] = Color.FromArgb(culoare, colorRest[i].G, colorRest[i].B);
-                
-                }
+                if(modificareCulori==ModificareCulori.FATA)
+                    obiect.ModifyColorFace(true, false, false, incrementCuloare);
+                else
+                    obiect.ModifyColorTriangle(true, false, false,(int)modificareCulori,incrementCuloare);
 
             }
             if (e.Key == Key.R && !previousKeyboard[Key.R] && e.Control) // se verifică dacă este apăsată tasta R si Control
             {
 
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    int culoare = Math.Max(0, colorRest[i].R - incrementCuloare);
-                    colorRest[i] = Color.FromArgb(culoare, colorRest[i].G, colorRest[i].B);
-               
-                }
+                if (modificareCulori == ModificareCulori.FATA)
+                    obiect.ModifyColorFace(true, false, false, -incrementCuloare);
+                else
+                    obiect.ModifyColorTriangle(true, false, false, (int)modificareCulori, -incrementCuloare);
             }
             if (e.Key == Key.G && !previousKeyboard[Key.G] && !e.Control) // se verifică dacă este apăsată tasta G
             {
-         
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    int culoare = Math.Min(255, colorRest[i].G + incrementCuloare);
-                    colorRest[i] = Color.FromArgb(colorRest[i].R, culoare, colorRest[i].B);
-                  
-                 }
-           
+                if (modificareCulori == ModificareCulori.FATA)
+                    obiect.ModifyColorFace(false, true, false, incrementCuloare);
+                else
+                    obiect.ModifyColorTriangle(false, true, false, (int)modificareCulori, incrementCuloare);
+
+
             }
             if (e.Key == Key.G && !previousKeyboard[Key.G] && e.Control) // se verifică dacă este apăsată tasta G si Control
             {
-          
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    int culoare = Math.Max(0, colorRest[i].G - incrementCuloare);
-                    colorRest[i] = Color.FromArgb(colorRest[i].R, culoare, colorRest[i].B);
-                   
-                }
-             
+                if (modificareCulori == ModificareCulori.FATA)
+                    obiect.ModifyColorFace(false, true, false, -incrementCuloare);
+                else
+                    obiect.ModifyColorTriangle(false, true, false, (int)modificareCulori, -incrementCuloare);
+
+
             }
             if (e.Key == Key.B && !previousKeyboard[Key.B] && !e.Control) // se verifică dacă este apăsată tasta B
             {
-         
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    int culoare = Math.Min(255, colorRest[i].B + incrementCuloare);
-                    colorRest[i] = Color.FromArgb(colorRest[i].R, colorRest[i].G, culoare);
-                  
-                }
-          
+
+                if (modificareCulori == ModificareCulori.FATA)
+                    obiect.ModifyColorFace(false, false, true, incrementCuloare);
+                else
+                    obiect.ModifyColorTriangle(false, false, true, (int)modificareCulori, incrementCuloare);
+
+
             }
-            if (e.Key == Key.B && !previousKeyboard[Key.B] && e.Control) // se verifică dacă este apăsată tasta R si Control
+            if (e.Key == Key.B && !previousKeyboard[Key.B] && e.Control) // se verifică dacă este apăsată tasta B si Control
             {
-                
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    int culoare = Math.Max(0, colorRest[i].B - incrementCuloare);
-                    colorRest[i] = Color.FromArgb(colorRest[i].R, colorRest[i].G, culoare);
-                 
-                }
-             
+                if (modificareCulori == ModificareCulori.FATA)
+                    obiect.ModifyColorFace(false, false, true, -incrementCuloare);
+                else
+                    obiect.ModifyColorTriangle(false, false, true, (int)modificareCulori, -incrementCuloare);
+
+
+            }
+            if (e.Key == Key.F1 && !previousKeyboard[Key.F1]) // se verifica daca este apasata tasta F1
+            {
+                obiect.GenerateNewColors();
             }
             if (e.Key == Key.I && !previousKeyboard[Key.I]) // se verifica daca este apasata tasta I
             {
-                Console.WriteLine("Informatii despre obiectul in repaus:");
-                for (int i = 0; i < colorRest.Length; i++)
-                {
-                    Console.WriteLine("Vertex[" + i + "] are valorile RGB:{" + colorRest[i].R + "," + colorRest[i].G + "," + colorRest[i].B + "}");
-
-                }
-                Console.WriteLine();
+                Console.WriteLine(obiect.Info());
+            }
+            if (e.Key == Key.Number1 &&!previousKeyboard[Key.Number1]) // se verifică dacă este apăsată tasta 1
+            {
+                Console.WriteLine("Modificati culorile primului vertex din fiecare triunghi!");
+                modificareCulori = ModificareCulori.VERTEX1;
+            }
+            if (e.Key == Key.Number2 && !previousKeyboard[Key.Number2]) // se verifică dacă este apăsată tasta 2
+            {
+                Console.WriteLine("Modificati culorile celui de al doilea vertex din fiecare triunghi!");
+                modificareCulori = ModificareCulori.VERTEX2;
+            }
+            if (e.Key == Key.Number3 && !previousKeyboard[Key.Number3]) // se verifică dacă este apăsată tasta 3
+            {
+                Console.WriteLine("Modificati culorile celui de al treilea vertex din fiecare triunghi!");
+                modificareCulori = ModificareCulori.VERTEX3;
+            }
+            if (e.Key == Key.Number0 && !previousKeyboard[Key.Number0]) // se verifică dacă este apăsată tasta 0
+            {
+                Console.WriteLine("Modificati culorile fetei din fata a cubului!");
+                modificareCulori = ModificareCulori.FATA;
             }
         }
 
@@ -322,6 +297,8 @@ namespace SimpleWindow
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+            GL.Enable(EnableCap.DepthTest); /// TEMA 4, folosit pentru randarea 3D
+            GL.DepthFunc(DepthFunction.Less); /// TEMA 4, folosit pentru randarea 3D
             GL.ClearColor(Color.DarkGray); // se setează culoarea de fundal
            
         }
@@ -385,8 +362,6 @@ namespace SimpleWindow
                 }
             }
             else { isMoving = false; }
-
-
             this.previousMouse = Mouse.GetState(); // se actualizează starea mouse-ului
             this.previousKeyboard = Keyboard.GetState(); // se actualizează starea tastaturii
             // se apeleaza controlul camerei, mouseMovement determina daca miscarea mouse-ului afecteaza camera
@@ -402,62 +377,12 @@ namespace SimpleWindow
         {
            
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            DrawAxes(); // se deseaneaza axele
-            
-            if (!isHidden) // verificăm dacă obiectul nu este ascuns
-            {
-                if (!isMoving) // verificăm dacă mouse-ul este în mișcare
-                {
-                    // se deseneaza triunghiul stationar, el va avea culoarea random la inceput si poate fi schimbata cu tastele R,G,B si Control + aceleasi taste
-                    GL.Begin(PrimitiveType.Triangles);
-
-                    GL.Color3(colorRest[0]);
-                    GL.Vertex3(coordObj[0][0]+X, coordObj[0][1]+Y, coordObj[0][2]+Z);
-                    GL.Color3(colorRest[1]);
-                    GL.Vertex3(coordObj[1][0]+X, coordObj[1][1]+Y, coordObj[1][2]+Z);
-                    GL.Color3(colorRest[2]);
-                    GL.Vertex3(coordObj[2][0] + X, coordObj[2][1] + Y, coordObj[2][2] + Z);
-
-                    GL.End();
-                }
-                else
-                {
-                    // se deseneaza obiectul in miscare, el va fi tot un triunghi, dar va avea culori statice
-                    GL.Begin(PrimitiveType.Triangles);
-
-                    GL.Color3(colorMove[0]);
-                    GL.Vertex3(coordObj[0][0] + X, coordObj[0][1] + Y, coordObj[0][2] + Z);
-                    GL.Color3(colorMove[1]);
-                    GL.Vertex3(coordObj[1][0]+X, coordObj[1][1] + Y, coordObj[1][2] + Z);
-                    GL.Color3(colorMove[2]);
-                    GL.Vertex3(coordObj[2][0] + X, coordObj[2][1] + Y, coordObj[2][2] + Z);
-                    GL.End();
-
-                }
-            }
+            GL.Clear(ClearBufferMask.DepthBufferBit); /// TEMA 4, extrem de important pentru randarea 3D, la miscarea camerei unele obiecte trebuie sa fie ascunse de altele 
+            axe.Draw();
+            obiect.Draw();
             this.SwapBuffers();
         }
-        /// <summary>
-        /// Metoda care deseaneaza axele 
-        /// </summary>
-        private void DrawAxes()
-
-        {
-            GL.Begin(PrimitiveType.Lines);
-            GL.Color3(Color.Black);
-            GL.Vertex3(-XYZ_SIZE, 0, 0);
-            GL.Vertex3(XYZ_SIZE, 0, 0);
-
-            GL.Color3(Color.Black);
-            GL.Vertex3(0, -XYZ_SIZE, 0);
-            GL.Vertex3(0, XYZ_SIZE, 0);
-         
-            GL.Color3(Color.Black);
-            GL.Vertex3(0, 0, -XYZ_SIZE);
-            GL.Vertex3(0, 0, XYZ_SIZE);
-
-            GL.End();
-        }
+        
 
 
         /// <summary>

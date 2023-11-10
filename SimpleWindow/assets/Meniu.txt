@@ -1,7 +1,8 @@
 ﻿	Meniu	
-Escape - iese din aplicatie, 
-F11 - redimensioneaza fereastra,
-H -  afiseaza meniul de ajutor,
+Escape - iese din aplicatie
+F11 - redimensioneaza fereastra
+F1 - genereaza noi culori pentru obiectul afisat
+H -  afiseaza meniul de ajutor
 O - ascunde/arata obiectul
 leftArrow - misca obiectul in staga si trebuie tinut apasat
 rightArro - misca obiectul in dreata si trebuie tinut apasat
@@ -16,9 +17,15 @@ G - creste componenta Green din culorile obiectului
 Control + G - scade componenta Green din culorile obiectului 
 B - creste componenta Blue din culorile obiectului 
 Control + B - scade componenta Blue din culorile obiectului
-X - seteaza daca camera este manipulata prin miscarea mouse-ului sau nu 
+X - seteaza daca camera este manipulata prin miscarea mouse-ului
 I - informatii despre obiect
-Obiectul isi va schimba culoare in timp ce mouse-ul se misca
+1 - schimba culorile primului vertex din toate triunghiurile
+2 - schimba culorile celui de al doilea vertex din toate triunghiurile
+3 - schimba culorile celui de al treilea vertex din toate triunghiurile
+0 - schimba culorile unei fete a obiectului desenat
+F1 - genereaza noi culori pentru obiectul afisat
 Camara este manipulata prin miscarea mouse-ului daca nu a fost apasat x
 Camera este rotita la stanga prin apasarea leftClick a mouse-ului
 Camera este rotita la dreapta prin apasarea rightClick a mouse-ului
+Dupa apasarea tastelor 1,2,3 sau 0 culorile se schimba cu tastele R,G,B (cu sau fara control)
+Obiectul este initial ascuns si pentru a randa scena apasati click stanga/dreapta

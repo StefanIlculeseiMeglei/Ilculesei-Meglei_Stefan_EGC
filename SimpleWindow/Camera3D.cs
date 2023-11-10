@@ -3,6 +3,8 @@ using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
 using System;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace SimpleWindow
 {
@@ -13,10 +15,10 @@ namespace SimpleWindow
     /// </summary>
     internal class Camera3D
     {
-        private Vector3 eye = new Vector3(0, 10, 40);
+        private Vector3 eye = new Vector3(0, 10, 75);
         private Vector3 target = new Vector3(0, 0, 0);
         private Vector3 up = new Vector3(0, 1, 0);
-        private const int distantaMaxima = 50;
+        private const int distantaMaxima = 75;
         private const int incrementMiscare = 1;
 
         public void SetCamera()
