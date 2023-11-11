@@ -23,7 +23,6 @@ namespace SimpleWindow
        /// Câmpul <c>caleFisier</c> reprezintă calea către fișierul sursă al obiectului, în acest caz este un fișier text
        /// </summary>
         string caleFisier = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/cub.txt");
-        string caleFisier2 = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/cub2.txt");
         /// <summary>
         /// Câmpul <c>FACTOR_SCALARE</c> reprezintă cu cât vom scala obiectul desenat
         /// </summary>
