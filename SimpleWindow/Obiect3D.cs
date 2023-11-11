@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace SimpleWindow
 {
     /// <summary>
-    /// Clasa tratează obiectele care trebuie desenate. Face parte din Tema 3 și Tema 4
+    /// Clasa tratează obiectele care trebuie desenate. Face parte din Tema 3, Tema 4 și Tema 5
     /// </summary>
     internal class Obiect3D
     {
@@ -23,10 +23,15 @@ namespace SimpleWindow
        /// Câmpul <c>caleFisier</c> reprezintă calea către fișierul sursă al obiectului, în acest caz este un fișier text
        /// </summary>
         string caleFisier = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/cub.txt");
+        string caleFisier2 = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/cub2.txt");
         /// <summary>
         /// Câmpul <c>FACTOR_SCALARE</c> reprezintă cu cât vom scala obiectul desenat
         /// </summary>
         private const int FACTOR_SCALARE = 10;
+        /// <summary>
+        /// Câmpul este folosit pentru a delimita zona în care obiectele pot fi generate, face parte din Tema 5 (subpunct 1)
+        /// </summary>
+        private const int DISTANTA_RAND_MAX = 70;
         /// <summary>
         /// Câmpul <c>coordsList</c> este o listă care conține vertexurile ce definesc obiectul desenat.
         /// </summary>
@@ -47,15 +52,26 @@ namespace SimpleWindow
         /// Câmpul <c>culori</c> este un array care conține culorile fiecărui vertex ce definește obiectul
         /// </summary>
         Color[] culori;
-        
+        /// <summary>
+        /// Câmp care determină daca obiectul a atins planul XOY. Folosit în tema 5
+        /// </summary>
+        float aboluteLowerY;
+        /// <summary>
+        /// Proprietate care determină dacă obiectul este afectat de gravitate
+        /// </summary>
+        public bool gravity { get; set; }
         /// <summary>
         /// Constructor 
         /// </summary>
+        private const float fallingSpeed = 1f;
         public Obiect3D()
         {
             try
             {
+                gravity = false;
+                aboluteLowerY = int.MaxValue;
                 coordsList = LoadFromTxtFile(caleFisier);
+                MoveAboveXOY();
                 originalCoords = new List<Vector3>();
                 InitCulori();
                 for(int i = 0; i < coordsList.Count; i++)
@@ -69,15 +85,24 @@ namespace SimpleWindow
                 }
                 visibility = false;
                 hasError = false;
-                Console.WriteLine("Obiect 3D încarcat - " + coordsList.Count.ToString() + " vertexuri disponibile!");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine("ERROR: assets file <" + caleFisier + "> is missing!!!");
                 hasError = true;
             }
         }
-        
+        /// <summary>
+        /// Metoda care modifică poziția obiectului în cazul în care este afectat de gravitate. Face parte din Tema 5 (subpunct 1)
+        /// </summary>
+        public void updatePositionFromGravity()
+        {
+            if(gravity)
+            {
+                Translate(0,-fallingSpeed, 0);
+            }
+
+        }
         /// <summary>
         /// Aceasta metoda initializarea culorile pentru fiecare vertex, deoarece 6 vertexuri consecutive definesc o fata a cubului ele vor avea aceasi culoare
         /// TEMA 4. Subpuctul 3
@@ -112,6 +137,25 @@ namespace SimpleWindow
             {
                 visibility = !visibility;
             }
+        }
+        /// <summary>
+        ///  Metodă care translatează obiectul pe o poziție random aleasă într-un anumit interval, face parte din Tema 5 (subpunct 1)
+        ///  Folosit pentru a genera obiecte noi pe poziții aleatorii
+        /// </summary>
+        public void TranslateRandom()
+        {
+            Random random = new Random();
+            int newX= random.Next(2) > 0 ? random.Next(DISTANTA_RAND_MAX) : -random.Next(DISTANTA_RAND_MAX);
+            while (Math.Abs(coordsList[0].X-newX)<FACTOR_SCALARE*2) // obiectul sa nu se genereze peste cel initial
+                newX = random.Next(2) > 0 ? random.Next(DISTANTA_RAND_MAX) : -random.Next(DISTANTA_RAND_MAX);
+            int newZ = random.Next(2) > 0 ? random.Next(DISTANTA_RAND_MAX) : -random.Next(DISTANTA_RAND_MAX);
+            while (Math.Abs(coordsList[0].Z - newZ) < FACTOR_SCALARE*2) // obiectul sa nu se genereze peste cel initial
+                newZ = random.Next(2) > 0 ? random.Next(DISTANTA_RAND_MAX) : -random.Next(DISTANTA_RAND_MAX);
+            int newY = random.Next(DISTANTA_RAND_MAX);
+            while (newY < FACTOR_SCALARE)
+                newY = random.Next(DISTANTA_RAND_MAX);
+            Translate(newX,newY, newZ);
+
         }
         /// <summary>
         /// Metodă care modifică culoare unui fețe a obiectului desenat, face parte din Tema 4(Subpunct 1)
@@ -203,6 +247,7 @@ namespace SimpleWindow
         /// </summary>
         public void GenerateNewColors()
         {
+            MoveAboveXOY();
             InitCulori();
         }
         /// <summary>
@@ -230,9 +275,21 @@ namespace SimpleWindow
 
         public void Translate(float x, float y, float z)
         {
-            for(int i = 0;i < coordsList.Count; i++)
+            if (aboluteLowerY + y >= 0)
             {
-                coordsList[i]= new Vector3(x + coordsList[i].X, y + coordsList[i].Y, z + coordsList[i].Z);
+                aboluteLowerY += y;
+                for (int i = 0; i < coordsList.Count; i++)
+                {
+                    coordsList[i] = new Vector3(x + coordsList[i].X, y + coordsList[i].Y, z + coordsList[i].Z);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < coordsList.Count; i++)
+                {
+                    coordsList[i] = new Vector3(x + coordsList[i].X, coordsList[i].Y, z + coordsList[i].Z);
+                }
+
             }
         }
         public String Info()
@@ -276,15 +333,51 @@ namespace SimpleWindow
                             float xval = float.Parse(block[1].Trim()) * FACTOR_SCALARE;
                             float yval = float.Parse(block[2].Trim()) * FACTOR_SCALARE;
                             float zval = float.Parse(block[3].Trim()) * FACTOR_SCALARE;
+                            aboluteLowerY = Math.Min(aboluteLowerY,(int)yval); // face parte din tema 5
 
                             vlc3.Add(new Vector3((int)xval, (int)yval, (int)zval));
-
                         }
                     }
                 }
             }
 
             return vlc3;
+        }
+        /// <summary>
+        /// Metoda care salveaza coordonatele intr-un fisier, face parte din Tema 5 (subpunct 3)
+        /// </summary>
+        public void SaveToTxtFile()
+        {
+            try
+            {
+
+                StreamWriter f = File.CreateText(caleFisier);
+                foreach (Vector3 ver in coordsList)
+                {
+                    f.WriteLine("v " + ver.X / FACTOR_SCALARE + " " + ver.Y / FACTOR_SCALARE + " " + ver.Z / FACTOR_SCALARE);
+                }
+                f.Close();
+            }
+            catch (Exception) // Testare de erori la scriere
+            {
+                Console.WriteLine("ERROR: assets file <" + caleFisier + "> cannot be opened!!");
+                hasError = true;
+            }
+        }
+        /// <summary>
+        /// Metoda muta obiectul deasupra planului XOY, folosit în tema 5
+        /// </summary>
+        private void MoveAboveXOY()
+        {
+            if(aboluteLowerY<0)
+            {
+                for (int i = 0; i < coordsList.Count; i++)
+                {
+                    coordsList[i] = new Vector3(coordsList[i].X, coordsList[i].Y +Math.Abs(aboluteLowerY), coordsList[i].Z);
+                }
+                aboluteLowerY = 0;
+
+            }
         }
 
     }

@@ -21,19 +21,10 @@ namespace SimpleWindow
     /// </summary>
     class SimpleWindow : GameWindow
     {
-
-        /// <value>
-        /// Câmpul <c>caleFisierdCoordonate</c> reprezintă calea catre fisierul de unde vom luat coordonatele obiectului, face parte din tema 3
-        /// </value>
-        string caleFisierCoordonate = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/coordonate.txt");
         /// <value>
         /// Câmpul <c>caleFisierMeniu</c> reprezintă calea catre fisierul de unde vom luat meniul de ajutor
         /// </value>
         string caleFisierMeniu = Path.Combine(Directory.GetParent(System.IO.Directory.GetCurrentDirectory()).Parent.FullName, "assets/meniu.txt");
-        /// <value>
-        /// Câmpul <c> coordObj</c> reprezintă un array cu coordonatele obiectului, face parte din tema 3
-        /// </value>
-        private float[][] coordObj= new float[3][];
         /// <value>
         /// Câmpul <c> XYZ_SIZE</c> determina lungimea axelor de coordonate
         /// </value>
@@ -42,6 +33,14 @@ namespace SimpleWindow
         /// Câmpul <c> incrementCuloare</c> determina cu cat vom incrementa/decrementa culoarea obiectului, face parte din tema 3
         /// </value>
         private static int incrementCuloare = 20;
+        /// <summary>
+        /// Câmp care determină numărul maxim de obiecte care poate pot fi desenate, face parte din Tema 5
+        /// </summary>
+        private int nrMaxObiecte = 10;
+        /// <summary>
+        /// Câmp care determină numărul curent de obiecte generate prin click, face parte din Tema 5
+        /// </summary>
+        private int nrCurentObiecte;
         /// <value>
         /// Câmpul <c> mouseMovement</c> determina daca camere este manipulata prin miscarea mouse-ului, face parte din tema 3
         /// </value>
@@ -62,7 +61,7 @@ namespace SimpleWindow
         /// <value>
         /// Câmpul <c>constDeplasaret</c> este static și reprezintă viteza cu care se deplasează obiectul
         /// </value>
-        static float constDeplasare = 0.2f;
+        private static float constDeplasare = 1f;
        
         /// <value>
         /// Câmpul <c>isMoving</c> reprezintă starea de mișcare a mouse-ului
@@ -81,10 +80,19 @@ namespace SimpleWindow
         /// Câmpul <c>obiect</c> reprezintă obiectul desenat
         /// </summary>
         private Obiect3D obiect;
+
+        /// <summary>
+        /// Câmpul <c>obiecte</c> reprezintă obiecte care vor fi generate prin click
+        /// </summary>
+        private Obiect3D[] obiecte;
         /// <summary>
         /// Câmpul <c>axe</c> reprezintă axele de coordonate a scenei 3D
         /// </summary>
         private AxeXYZ axe;
+        /// <summary>
+        /// Câmpul reprezintă gridul scenei.
+        /// </summary>
+        private Grid grid;
         /// <summary>
         /// Câmpul <c>modificaculori</c> determină ce obiecte îsi schimbă culoarea, face parte din Tema 4
         /// </summary>
@@ -108,14 +116,44 @@ namespace SimpleWindow
         {
             VSync = VSyncMode.On; // se activează VSync
             KeyDown += Keyboard_KeyDown;
+            this.MouseDown +=this.OnMouseClick;
             camera = new Camera3D();
-            obiect = new Obiect3D();
+            obiect = new Obiect3D(); // obiectul principal pe care il vom manipula
+            obiecte = new Obiect3D[nrMaxObiecte]; // array-ul de obiecte generate prin click face parte din Tema 5
+            nrCurentObiecte = 0; // numarul curent de obiecte generate prin click
             axe= new AxeXYZ();
+            grid = new Grid();
             modificareCulori = ModificareCulori.FATA;
             displayHelp();
+            camera.SetCamera();
         }
-    
-
+        /// <summary>
+        /// Metoda crează un nou obiect la apăsatea left click, face parte din Tema 5 (subpunct 1)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void OnMouseClick(object sender,MouseEventArgs e)
+        {
+           if (e.Mouse[MouseButton.Left] && e.Mouse[MouseButton.Left] != previousMouse[MouseButton.Left])
+           {
+                if (nrCurentObiecte < nrMaxObiecte)
+                {
+                    obiecte[nrCurentObiecte] = new Obiect3D();
+                    obiecte[nrCurentObiecte].TranslateRandom();
+                    obiecte[nrCurentObiecte].ToggleVisibility();
+                    obiecte[nrCurentObiecte].gravity = true;
+                    nrCurentObiecte++;
+                }
+                else
+                {
+                    /// marim array-ul cu obiecte
+                    nrMaxObiecte *= 2;
+                    Obiect3D[] copieObiecte = new Obiect3D[nrMaxObiecte];
+                    obiecte.CopyTo(copieObiecte, 0);
+                    obiecte = copieObiecte;
+                }
+           }
+        }
         /// <summary>
         /// Tratează evenimentul generat de apăsarea unui taste. 
         /// Sunt tratate tastele :
@@ -143,6 +181,10 @@ namespace SimpleWindow
         /// 3 - schimba culorile celui de al treilea vertex din toate triunghiurile
         /// 0 - schimba culorile unei fete a obiectului desenat]
         /// F1 - genereaza noi culorile pentru obiect
+        /// F2 - Toggle Camara mode (near/far)
+        /// S- salveaza noilea coordonate in fisier
+        /// A- roteste camera la stanga
+        /// D- roteste camera la dreapta
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -163,7 +205,12 @@ namespace SimpleWindow
                     this.WindowState = WindowState.Fullscreen; // modul ferestrei devine Fullscreen
                 }
             }
-            if (e.Key == Key.H && !previousKeyboard[Key.H]) // se verifică dacă tasta H a fost apăsata o singură dată
+            if (e.Key == Key.F2 && !previousKeyboard[Key.F2]) // se verifică dacă tasta F2 a fost apăsata o singură dată
+            {
+                camera.ToggleCameraDistance();
+            }
+
+                if (e.Key == Key.H && !previousKeyboard[Key.H]) // se verifică dacă tasta H a fost apăsata o singură dată
             {
                 displayHelp(); // se afișează meniul în consolă
             }
@@ -205,7 +252,14 @@ namespace SimpleWindow
             {
                 obiect.ResetPosition();
             }
-
+            if (e.Key == Key.A && previousKeyboard[Key.A]) // se verifică dacă este apăsată tasta A
+            {
+                camera.RotesteStanga();
+            }
+            if (e.Key == Key.D && previousKeyboard[Key.D]) // se verifică dacă este apăsată tasta D
+            {
+                camera.RotesteDreapta();
+            }
             if (e.Key == Key.R && !previousKeyboard[Key.R] && !e.Control) // se verifică dacă este apăsată tasta R
             {
 
@@ -288,6 +342,10 @@ namespace SimpleWindow
                 Console.WriteLine("Modificati culorile fetei din fata a cubului!");
                 modificareCulori = ModificareCulori.FATA;
             }
+            if (e.Key == Key.S && !previousKeyboard[Key.S]) // se verifica daca este apasata tasta S (salveaza in fisier) Tema 5
+            {
+                obiect.SaveToTxtFile();
+            }
         }
 
         /// <summary>
@@ -312,7 +370,7 @@ namespace SimpleWindow
         protected override void OnResize(EventArgs e)
         {
             GL.Viewport(0, 0, this.Width, this.Height);
-            Matrix4 perspective = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)Width / (float)Height, 1, 256);
+            Matrix4 perspective = Matrix4.CreatePerspectiveFieldOfView(MathHelper.PiOver4, (float)Width / (float)Height, 1, 512);
             GL.MatrixMode(MatrixMode.Projection);
             GL.LoadMatrix(ref perspective);
 
@@ -365,7 +423,14 @@ namespace SimpleWindow
             this.previousMouse = Mouse.GetState(); // se actualizează starea mouse-ului
             this.previousKeyboard = Keyboard.GetState(); // se actualizează starea tastaturii
             // se apeleaza controlul camerei, mouseMovement determina daca miscarea mouse-ului afecteaza camera
-            camera.ControlCamera(previousMouse,mouseMovement,isMoving,left,right,up,down); 
+            camera.ControlCamera(mouseMovement,isMoving,left,right,up,down); 
+            foreach(Obiect3D o in obiecte)
+            {
+                if (o != null)
+                {
+                    o.updatePositionFromGravity();
+                }
+            }
         }
 
         /// <summary>
@@ -379,7 +444,10 @@ namespace SimpleWindow
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.Clear(ClearBufferMask.DepthBufferBit); /// TEMA 4, extrem de important pentru randarea 3D, la miscarea camerei unele obiecte trebuie sa fie ascunse de altele 
             axe.Draw();
+            grid.Draw();
             obiect.Draw();
+            for(int i = 0;i<nrCurentObiecte;i++)
+                obiecte[i].Draw();
             this.SwapBuffers();
         }
         
@@ -422,7 +490,7 @@ namespace SimpleWindow
             using (SimpleWindow window3D = new SimpleWindow())
             {
                 window3D.Run(30.0, 0.0);
-            }
+            } 
         }
     }
 }

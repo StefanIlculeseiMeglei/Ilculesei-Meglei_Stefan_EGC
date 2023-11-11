@@ -52,6 +52,7 @@
   <ItemGroup>
     <Compile Include="AxeXYZ.cs" />
     <Compile Include="Camera3D.cs" />
+    <Compile Include="Grid.cs" />
     <Compile Include="Obiect3D.cs" />
     <Compile Include="SimpleWindow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

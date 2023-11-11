@@ -2,6 +2,7 @@
 Escape - iese din aplicatie
 F11 - redimensioneaza fereastra
 F1 - genereaza noi culori pentru obiectul afisat
+F2 - schimba modul camarei (aproape/departe)
 H -  afiseaza meniul de ajutor
 O - ascunde/arata obiectul
 leftArrow - misca obiectul in staga si trebuie tinut apasat
@@ -19,13 +20,14 @@ B - creste componenta Blue din culorile obiectului
 Control + B - scade componenta Blue din culorile obiectului
 X - seteaza daca camera este manipulata prin miscarea mouse-ului
 I - informatii despre obiect
-1 - schimba culorile primului vertex din toate triunghiurile
-2 - schimba culorile celui de al doilea vertex din toate triunghiurile
-3 - schimba culorile celui de al treilea vertex din toate triunghiurile
-0 - schimba culorile unei fete a obiectului desenat
-F1 - genereaza noi culori pentru obiectul afisat
+1 - schimba culorile primului vertex din toate triunghiurile obiectului principal
+2 - schimba culorile celui de al doilea vertex din toate triunghiurile obiectului principal
+3 - schimba culorile celui de al treilea vertex din toate triunghiurile obiectului principal
+0 - schimba culorile unei fete a obiectului principal
+A - roteste camera la stanga
+D - roteste camera la dreapta
+S - salveaza noile coordonate in fisier text
+LeftClick - genereaza un nou obiect sub influenta gravitatiei
 Camara este manipulata prin miscarea mouse-ului daca nu a fost apasat x
-Camera este rotita la stanga prin apasarea leftClick a mouse-ului
-Camera este rotita la dreapta prin apasarea rightClick a mouse-ului
 Dupa apasarea tastelor 1,2,3 sau 0 culorile se schimba cu tastele R,G,B (cu sau fara control)
-Obiectul este initial ascuns si pentru a randa scena apasati click stanga/dreapta
+Initial obiectul principal este ascuns
