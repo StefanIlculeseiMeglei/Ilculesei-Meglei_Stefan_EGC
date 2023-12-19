@@ -5,4 +5,5 @@ Temele rezolvate:
 2. Tema 3 (Proiectul SimpleWindow + fișierul Laborator3.md)
 3. Tema 4 (Proiectul SimpleWindow)
 4. Tema 5 (Proiectul SimpleWindow)
-5. Tema 9 (fișierul Loborator9.md)
+5. Tema 9 (fișierul Laborator9.md)
+6. Tema 10 (fișierul Laborator10.md)

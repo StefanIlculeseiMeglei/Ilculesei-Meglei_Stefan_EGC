@@ -2,6 +2,7 @@
 ## Ilculesei-Meglei Stefan grupa 3131a
 
 Acest fișier Markdown răspunde la întrebările de la finalul laboratorului 9.
+
 ``1.Descrieți diferențele dintre iluminarea așa cum funcționează în lumea reală și modelul de iluminare utilizat de OpenGL.``
 	Iluminarea utilizată de OpenGL este doar o aproximare a iluminării din realitate. Iluminarea reală este un proces complex care este greu de simulat, prin urmare sursele de lumină din OpenGL pot fi fie punctiforme, direcționale sau spot.
 
